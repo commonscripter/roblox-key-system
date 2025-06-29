@@ -1,0 +1,30 @@
+name: Update Key Every 12 Hours
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # every 12 hours
+  workflow_dispatch:        # manual run
+
+jobs:
+  update-key:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Run key generator
+      run: python update_key.py
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "actions@github.com"
+        git add key.txt
+        git commit -m "Update key [auto]" || echo "No changes to commit"
+        git push
